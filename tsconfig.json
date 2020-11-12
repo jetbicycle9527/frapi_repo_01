@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es2015",
+        "sourceMap": true,
+        "outDir": "./src",
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "node_modules/*"
+            ]
+        },
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "noImplicitUseStrict": true,
+        "forceConsistentCasingInFileNames": true
+    },
+    "exclude": [
+        "node_modules",
+        "plugins-disabled",
+        "npm_scripts",
+        "installer",
+        "coverage",
+        "config",
+        ".vscode"
+    ],
+    "include": [
+        "src/**/*"
+    ]
+}

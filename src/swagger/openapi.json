@@ -1,0 +1,1080 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Frontier API",
+    "description": "APIs for eCom Integration",
+    "version": "1.0"
+  },
+  "paths": {
+    "/frapi/quote": {
+      "post": {
+        "tags": [
+          "Quote APIs"
+        ],
+        "description": "To Create a new Quote",
+        "requestBody": {
+          "description": "input for quot creation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/quoteCreationObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteId"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid quote"
+          },
+          "default": {
+            "description": "Invalid request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/frapi/quote/search": {
+      "post": {
+        "tags": [
+          "Quote APIs"
+        ],
+        "description": "Search Existing Quotes based on Customer Info",
+        "requestBody": {
+          "description": "input for quot search",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/quoteSearchObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QuoteId"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "default": {
+            "description": "Invalid request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/frapi/quote/{quote_id}": {
+      "get": {
+        "operationId": "quoteGet",
+        "tags": [
+          "Quote APIs"
+        ],
+        "description": "Returns Quote Object Based on requested Quote ID",
+        "parameters": [
+          {
+            "name": "quote_id",
+            "in": "path",
+            "description": "Quote ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/cpqQuoteObject"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://epminfwwadv21.corp.pvt:8180",
+      "description": "Dev03 FRAPI server"
+    },
+    {
+      "url": "http://localhost:8180",
+      "description": "local FRAPI server"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "QuoteId": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "cpqQuoteObject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "841b8d04-2c18-44c4-aa18-a3ae0fc17558"
+          },
+          "name": {
+            "type": "string",
+            "example": "Dental Lab"
+          },
+          "quoteNumber": {
+            "type": "string",
+            "example": "0000021"
+          },
+          "created": {
+            "type": "string",
+            "description": "The date created",
+            "example": "2017-08-28T06:15:11.733Z"
+          },
+          "updated": {
+            "type": "string",
+            "description": "The date last updated",
+            "example": "2017-08-28T06:19:11.733Z"
+          },
+          "contextData": {
+            "type": "object"
+          },
+          "customerRef": {
+            "type": "string",
+            "example": "123"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteItem"
+            }
+          },
+          "quoteType": {
+            "type": "number",
+            "description": "Type of the quote {sales, opportunity...}",
+            "example": 0
+          },
+          "orderId": {
+            "type": "string",
+            "description": "The orderId the quote was created from (for quotes of type 'change')",
+            "example": " "
+          },
+          "cpqOrderId": {
+            "type": "string",
+            "description": "The Internal ID of the Generic Order generated for this quote on submission",
+            "example": " "
+          },
+          "cpqSupplementalOrderId": {
+            "type": "string",
+            "description": "The Internal ID of the Supplemental Order generated for this quote on submission",
+            "example": " "
+          },
+          "currentValidation": {
+            "$ref": "#/components/schemas/ValidationResponse"
+          },
+          "submissionDate": {
+            "type": "string",
+            "example": "2017-08-28T06:23:11.733Z"
+          }
+        }
+      },
+      "QuoteItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "841b8d04-2c18-44c4-aa18-a3ae0fc17579"
+          },
+          "name": {
+            "type": "string",
+            "example": "AT_S-10487_EvaluateRules_package"
+          },
+          "created": {
+            "type": "string",
+            "description": "The date item was created",
+            "example": "2017-08-28T06:07:11.733Z"
+          },
+          "quoteLastUpdated": {
+            "type": "string",
+            "description": "The date item was created",
+            "example": "2017-08-29T06:07:11.733Z"
+          },
+          "productId": {
+            "type": "string",
+            "example": "7ffc1878-f1e5-47d8-8268-029615bb28d2"
+          },
+          "description": {
+            "type": "string",
+            "example": "Test package for Evaluate Rules"
+          },
+          "productCandidate": {
+            "$ref": "#/components/schemas/ProductCandidate"
+          },
+          "prePricedCandidate": {
+            "$ref": "#/components/schemas/ProductCandidate"
+          },
+          "portfolioItemId": {
+            "type": "string",
+            "description": "The identifier of the portfolio item that this QuoteItem relates to."
+          },
+          "offerSpecification": {
+            "type": "object",
+            "description": "the product specification for this offer"
+          },
+          "currentPricing": {
+            "$ref": "#/components/schemas/ICpqPricingResponse"
+          },
+          "currentValidation": {
+            "$ref": "#/components/schemas/ValidationResponse"
+          },
+          "itemAction": {
+            "type": "string",
+            "description": "The portfolio action which is to be applied to the Quote.If no value is specified then the CPQ API will treat it as an Add. The only values which are allowed are <Add | Update | Delete>",
+            "example": "add"
+          }
+        }
+      },
+      "ValidationError": {
+        "properties": {
+          "entityID": {
+            "type": "string"
+          },
+          "entityUniqueCode": {
+            "type": "string"
+          },
+          "childID": {
+            "type": "string"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "friendlyMessage": {
+            "type": "string"
+          },
+          "xsiType": {
+            "type": "string"
+          }
+        }
+      },
+      "ValidationResponse": {
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "ProductCandidate": {
+        "type": "object",
+        "title": "Product Candidate",
+        "properties": {
+          "ID": {
+            "type": "string",
+            "description": "The unique ID of the product candidate. Will be set during the database write operation if not provided",
+            "example": "ID_d3iekpkfm8"
+          },
+          "EntityID": {
+            "type": "string",
+            "description": "ID of the entity according to its specification",
+            "example": "a156df72-a4eb-4be1-b969-570e8885f187"
+          },
+          "ChildEntity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IEntity"
+            },
+            "description": "An array of related entities"
+          },
+          "CharacteristicUse": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ICharacteristicUse"
+            },
+            "description": "An array of characteristic uses. Can be configurable characteristic or fact instances"
+          },
+          "RateAttribute": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IRatingAttribute"
+            },
+            "description": "An array of rating attributes"
+          },
+          "ConfiguredValue": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IConfiguredValueUse"
+            },
+            "description": "An array of configured value uses. These are user defined characteristic instances"
+          },
+          "LinkedEntity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IEntityLink"
+            },
+            "description": "An optional array of strings that represent other entities that this product is linked to"
+          },
+          "OrderItemID": {
+            "type": "string",
+            "description": "An optional string for the order item ID"
+          }
+        }
+      },
+      "IEntity": {
+        "properties": {
+          "ID": {
+            "type": "string",
+            "description": "Unique ID for the entity instance",
+            "example": "ID_qteykyruo9"
+          },
+          "EntityID": {
+            "type": "string",
+            "description": "ID of the entity according to its specification",
+            "example": "af80742c-3088-483b-857f-5f958d047b8f"
+          },
+          "ChildEntity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IEntity"
+            },
+            "description": "An array of related entities"
+          },
+          "CharacteristicUse": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ICharacteristicUse"
+            },
+            "description": " An array of characteristic uses. Can be configurable characteristic or fact instances"
+          },
+          "RateAttribute": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IRatingAttribute"
+            },
+            "description": " An array of rating attributes"
+          },
+          "ConfiguredValue": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IConfiguredValueUse"
+            },
+            "description": " An array of configured value uses. These are user defined characteristic instances"
+          }
+        }
+      },
+      "ICharacteristicUse": {
+        "properties": {
+          "UseArea": {
+            "type": "string",
+            "example": "Credit_Score",
+            "description": "The name of the characteristic"
+          },
+          "Value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ICharacteristicValue"
+            },
+            "description": "An array of characteristic values"
+          },
+          "CharacteristicID": {
+            "type": "string",
+            "example": "9c46867f-db54-4789-8a99-0b87e13fc62f",
+            "description": "The characteristic id"
+          }
+        }
+      },
+      "IRatingAttribute": {
+        "properties": {
+          "Name": {
+            "type": "string",
+            "example": "Credit_Rating",
+            "description": "Name of the rating attribute"
+          },
+          "Value": {
+            "type": "string",
+            "example": "97ff9db7-ac77-4c5d-b9bd-9f968bb27a5e",
+            "description": "Value of the rating attribute"
+          }
+        }
+      },
+      "IConfiguredValueUse": {
+        "properties": {
+          "UseID": {
+            "type": "string",
+            "description": "Unique ID for the configured value use",
+            "example": "6bec8c69-c4f4-4bf3-b38b-105a3d558b6f"
+          },
+          "UseArea": {
+            "type": "string",
+            "description": "Name of the UseArea",
+            "example": "Commercial_UserDefinedChar"
+          },
+          "Value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IConfiguredValue"
+            },
+            "description": "An array of configured values"
+          },
+          "CharacteristicID": {
+            "type": "string",
+            "description": "The characteristic id",
+            "example": "db5e9276-0392-4f4d-99a6-d03da4b7df95"
+          }
+        }
+      },
+      "IConfiguredValue": {
+        "properties": {
+          "Value": {
+            "type": "string",
+            "description": "The name of the configured value",
+            "example": "0123456789"
+          },
+          "ValueDetail": {
+            "type": "string",
+            "description": "The entered detail for the configured value",
+            "example": "Contact Phone"
+          }
+        }
+      },
+      "ICharacteristicValue": {
+        "properties": {
+          "ValueID": {
+            "type": "string",
+            "description": "The unique ID of the characteristic",
+            "example": "97ff9db7-ac77-4c5d-b9bd-9f968bb27a5e"
+          },
+          "ValueDetail": {
+            "type": "string",
+            "description": "Description of the selected value",
+            "example": "Average"
+          }
+        }
+      },
+      "IEntityLink": {
+        "properties": {
+          "LinkTypeID": {
+            "type": "string",
+            "description": "GUID of the EntityLink as defined on the Product Spec"
+          },
+          "Action": {
+            "type": "string",
+            "description": "The action to perform against this EntityLink. Only available on EntityLinks in Order Items"
+          },
+          "ChangeType": {
+            "type": "string"
+          },
+          "Links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ILinkTarget"
+            },
+            "description": "A list of all the portfolio items that this EntityLink targets"
+          },
+          "ItemSource": {
+            "type": "string"
+          }
+        }
+      },
+      "ILinkTarget": {
+        "type": "object",
+        "properties": {
+          "PortfolioItemID": {
+            "type": "string",
+            "description": "The id of the portfolio item that is linked"
+          },
+          "Action": {
+            "type": "string",
+            "description": "The action to be performed on this LinkTarget. Only available in Order Items"
+          }
+        }
+      },
+      "ICpqPricingResponse": {
+        "type": "object",
+        "properties": {
+          "Pricing": {
+            "$ref": "#/components/schemas/ICpqItemPricing"
+          }
+        }
+      },
+      "ICpqItemPricing": {
+        "type": "object",
+        "properties": {
+          "CreationDate": {
+            "description": "Date of creation",
+            "type": "string",
+            "example": "2017-12-12"
+          },
+          "ProductCandidate": {
+            "$ref": "#/components/schemas/IPricingServiceResponseEntity"
+          },
+          "PriceSummary": {
+            "$ref": "#/components/schemas/IItemPriceSummary"
+          },
+          "TotalPriceSummary": {
+            "$ref": "#/components/schemas/ITotalProfitSummary"
+          },
+          "PaidTotalPriceSummary": {
+            "$ref": "#/components/schemas/ITotalProfitSummary"
+          },
+          "ItemisedPricingSummary": {
+            "type": "array",
+            "description": "The itemised pricing summaries for unpaid instances",
+            "items": {
+              "$ref": "#/components/schemas/IEntityProfitSummary"
+            }
+          },
+          "PaidItemisedPricingSummary": {
+            "type": "array",
+            "description": "The itemised pricing summaries for paid instances",
+            "items": {
+              "$ref": "#/components/schemas/IEntityProfitSummary"
+            }
+          }
+        }
+      },
+      "IRecurringCostSummary": {
+        "type": "object",
+        "description": "The summary for a recurring costs by period",
+        "properties": {
+          "Period": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPeriodSummary"
+            }
+          }
+        }
+      },
+      "IRecurringChargeSummary": {
+        "type": "object",
+        "description": "The summary for a recurring charges by period",
+        "properties": {
+          "Period": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPeriodSummary"
+            }
+          }
+        }
+      },
+      "IPeriodSummary": {
+        "type": "object",
+        "description": "The summary for a period",
+        "properties": {
+          "Name": {
+            "description": "Name of the period the summary relates to",
+            "type": "string",
+            "example": "Monthly"
+          },
+          "MinimumTotal": {
+            "description": "Minimum total for the given period",
+            "type": "string",
+            "example": "150.00"
+          },
+          "MaximumTotal": {
+            "description": "Maximum total for the given period",
+            "type": "string",
+            "example": "150.00"
+          }
+        }
+      },
+      "IItemPriceSummary": {
+        "type": "object",
+        "properties": {
+          "IgnoredCharges": {
+            "description": "Summary information of ignored charges for the candidate",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "RecurringCharges": {
+            "description": "Summary information of the recurring charges for the candidate.This has to be any, as the pricing service could return an object or an array",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IRecurringChargeSummary"
+            }
+          },
+          "NonRecurringCharges": {
+            "$ref": "#/components/schemas/INonRecurringChargeSummary"
+          },
+          "ActionBasedCharges": {
+            "$ref": "#/components/schemas/INonRecurringActionBasedChargeSummary"
+          },
+          "StandaloneCharges": {
+            "$ref": "#/components/schemas/IStandaloneActionBasedChargeSummary"
+          },
+          "IgnoredCosts": {
+            "description": "Summary information of ignored costs for the candidate",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "RecurringCosts": {
+            "description": "Summary information of the recurring costs for the candidate.This has to be any, as the pricing service could return an object or an array",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IRecurringCostSummary"
+            }
+          },
+          "NonRecurringCosts": {
+            "$ref": "#/components/schemas/INonRecurringCostSummary"
+          }
+        }
+      },
+      "INonRecurringChargeSummary": {
+        "description": "Summary information of the non-recurring charges for the candidate",
+        "type": "object",
+        "properties": {
+          "MinimumTotal": {
+            "description": "The minimum possible total of non-recurring charges for the candidate",
+            "type": "number",
+            "example": 0
+          },
+          "FinalTotal": {
+            "description": "The final total of non-recurring charges for the candidate",
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "INonRecurringCostSummary": {
+        "description": "Summary information of the non-recurring charges for the candidate",
+        "type": "object",
+        "properties": {
+          "MinimumTotal": {
+            "description": "The minimum possible total of non-recurring charges for the candidate",
+            "type": "number",
+            "example": 0
+          },
+          "FinalTotal": {
+            "description": "The final total of non-recurring charges for the candidate",
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "INonRecurringActionBasedChargeSummary": {
+        "description": "Summary information of the non-recurring charges for the candidate",
+        "type": "object",
+        "properties": {
+          "Charges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IActionBasedChargeItem"
+            }
+          },
+          "MinimumTotal": {
+            "description": "The minimum possible total of non-recurring charges for the candidate",
+            "type": "number",
+            "example": 0
+          },
+          "FinalTotal": {
+            "description": "The final total of non-recurring charges for the candidate",
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "IStandaloneActionBasedChargeSummary": {
+        "description": "Summary information of the non-recurring charges for the candidate",
+        "type": "object",
+        "properties": {
+          "Charge": {
+            "$ref": "#/components/schemas/IActionBasedStandaloneChargeItem"
+          },
+          "MinimumTotal": {
+            "description": "The minimum possible total of non-recurring charges for the candidate",
+            "type": "number",
+            "example": 0
+          },
+          "FinalTotal": {
+            "description": "The final total of non-recurring charges for the candidate",
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "IActionBasedStandaloneChargeItem": {
+        "description": "Summary information of the non-recurring charges for the candidate",
+        "type": "object",
+        "properties": {
+          "Rate": {
+            "$ref": "#/components/schemas/IEntityRate"
+          },
+          "ChargeType": {
+            "description": "The type of charge for the action based standalone charge item",
+            "type": "string",
+            "example": "RecurringCharge"
+          },
+          "ExactType": {
+            "description": "The exact type of the action based standalone charge item",
+            "type": "string",
+            "example": "Recurring_Charge_Template"
+          },
+          "ChargeName": {
+            "description": "The name of the action based standalone charge item",
+            "type": "string",
+            "example": "Example Charge Name"
+          }
+        }
+      },
+      "IActionBasedChargeItem": {
+        "type": "object",
+        "properties": {
+          "ChildEntity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPricingServiceResponseEntity"
+            }
+          },
+          "Rate": {
+            "$ref": "#/components/schemas/IEntityRate"
+          },
+          "ChargeType": {
+            "description": "The type of charge for the action based charge item",
+            "type": "string",
+            "example": "RecurringCharge"
+          },
+          "ExactType": {
+            "description": "The exact type of the action based charge item",
+            "type": "string",
+            "example": "Recurring_Charge_Template"
+          },
+          "PriceGrouping": {
+            "description": "The price grouping of the action based charge item",
+            "type": "string",
+            "example": "Update fees"
+          },
+          "ChargeName": {
+            "description": "The name of the action based charge item",
+            "type": "string",
+            "example": "Example Charge Name"
+          }
+        }
+      },
+      "IPricingServiceResponseEntity": {
+        "type": "object",
+        "description": "Details of the priced product candidate",
+        "properties": {
+          "ChildEntity": {
+            "description": "Any child items the priced entity may contain",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPricingServiceResponseEntity"
+            }
+          },
+          "ChargeType": {
+            "description": "The type of charge for the priced entity",
+            "type": "string",
+            "example": "RecurringCharge"
+          },
+          "ExactType": {
+            "description": "The exact type of the priced entity",
+            "type": "string",
+            "example": "Recurring_Charge_Template"
+          },
+          "Rate": {
+            "$ref": "#/components/schemas/IEntityRate"
+          },
+          "Periodicity": {
+            "description": "The periodicity applied to the priced entity",
+            "type": "string",
+            "example": "Monthly"
+          },
+          "HasBeenPaid": {
+            "description": "Flag to indicate whether or not the priced entity has been paid",
+            "type": "boolean",
+            "example": "false"
+          },
+          "CostType": {
+            "description": "The type of the cost for the priced entity",
+            "type": "string",
+            "example": "RecurringCost"
+          }
+        }
+      },
+      "IEntityRate": {
+        "type": "object",
+        "properties": {
+          "ID": {
+            "description": "The unique identifier for the entity rate",
+            "type": "string",
+            "example": "3357236a-e180-4462-b675-5f3a30496e9e"
+          },
+          "Type": {
+            "description": "The type for the entity rate",
+            "type": "string",
+            "example": "Recurring_Charge_Flat"
+          },
+          "StartDate": {
+            "description": "The start date applied to the entity rate",
+            "type": "string",
+            "example": "2017-12-12"
+          },
+          "EndDate": {
+            "description": "The end date applied to the entity rate",
+            "type": "string",
+            "example": "2017-12-31"
+          },
+          "Value": {
+            "description": "The charge value of the entity rate",
+            "type": "string",
+            "example": "15"
+          },
+          "CostValue": {
+            "description": "The cost value of the entity rate",
+            "type": "string",
+            "example": "5"
+          }
+        }
+      },
+      "IQuotePricingSummary": {
+        "type": "object",
+        "properties": {
+          "TotalPriceSummary": {
+            "$ref": "#/components/schemas/ITotalProfitSummary"
+          },
+          "PaidTotalPriceSummary": {
+            "$ref": "#/components/schemas/ITotalProfitSummary"
+          }
+        }
+      },
+      "IPeriodProfitSummary": {
+        "properties": {
+          "Monthly": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IProfitSummary"
+            }
+          },
+          "Annualy": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IProfitSummary"
+            }
+          },
+          "Weekly": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IProfitSummary"
+            }
+          }
+        }
+      },
+      "IProfitSummary": {
+        "type": "object",
+        "properties": {
+          "ItemCharge": {
+            "type": "string",
+            "description": "The value of the charge for the item on the summary.",
+            "example": "50.00"
+          },
+          "ItemCost": {
+            "type": "string",
+            "description": "The value of the cost for the item on the summary.",
+            "example": "25.00"
+          },
+          "Profit": {
+            "type": "string",
+            "description": "The value of the profit for the item on the summary - Profit is calculated using the cost and charge.",
+            "example": "25.00"
+          },
+          "ProfitMargin": {
+            "type": "string",
+            "description": "The value of the profit margin for the item on the summary - Profit margin is calculated as a percentage.",
+            "example": "50.00"
+          }
+        }
+      },
+      "ITotalProfitSummary": {
+        "type": "object",
+        "properties": {
+          "Recurring": {
+            "$ref": "#/components/schemas/IPeriodProfitSummary"
+          },
+          "NonRecurring": {
+            "$ref": "#/components/schemas/IProfitSummary"
+          }
+        }
+      },
+      "IEntityProfitSummary": {
+        "type": "object",
+        "properties": {
+          "EntityID": {
+            "description": "Unique identifier for the entity in relation to the specification",
+            "type": "string",
+            "example": "ce11ecd5-de2f-4c53-ac62-f605af5dc10b"
+          },
+          "InstanceIDs": {
+            "description": "A list of unique identifiers for each instance that exists in the candidate.",
+            "type": "array",
+            "example": "['ID_n6sts7rv2c']",
+            "items": {
+              "type": "string"
+            }
+          },
+          "Recurring": {
+            "description": "The total summary for each recurring period.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPeriodProfitSummary"
+            }
+          },
+          "NonRecurring": {
+            "description": "The total non recurring summary.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IProfitSummary"
+            }
+          },
+          "Quantity": {
+            "description": "Amount of instances of the given entity",
+            "type": "number",
+            "example": "3"
+          }
+        }
+      },
+      "Error": {
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "quoteCreationObject": {
+        "type": "object",
+        "properties": {
+          "addressID": {
+            "type": "string",
+            "example": "1234"
+          },
+          "customerType": {
+            "type": "string",
+            "example": "Gold"
+          },
+          "assistType": {
+            "type": "string",
+            "example": "N/A"
+          },
+          "digitalIdentity": {
+            "type": "string",
+            "example": "Digital1234"
+          },
+          "salesChannel": {
+            "type": "string",
+            "example": "RadioShack"
+          },
+          "partner": {
+            "type": "string",
+            "example": "Retailer"
+          },
+          "affiliate": {
+            "type": "string",
+            "example": "N/A"
+          },
+          "agentID": {
+            "type": "string",
+            "example": "Agent Smith"
+          },
+          "sCase": {
+            "type": "string",
+            "example": "S-1234"
+          }
+        },
+        "required": [
+          "addressID"
+        ]
+      },
+      "quoteSearchObject": {
+        "type": "object",
+        "properties": {
+		  "addressID": {
+            "type": "string",
+            "example": "1233445555"
+		  },
+          "customerName": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "customerAddress": {
+            "type": "string",
+            "example": "1 main st Dallas, Texas"
+          },
+          "TN": {
+            "type": "string",
+            "example": "1233445555"
+          },
+          "customerAccountId": {
+            "type": "string",
+            "example": "1233445555"
+          },
+          "digitalIdentity": {
+            "type": "string",
+            "example": "1233445555"
+          }
+        }
+      }
+    }
+  }
+}

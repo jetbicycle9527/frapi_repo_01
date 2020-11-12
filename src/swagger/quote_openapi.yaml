@@ -1,0 +1,1074 @@
+openapi: 3.0.0
+info:
+    title: Frontier API
+    version: '1.0'
+    description: APIs for eCom Integration
+servers:
+    -
+        url: 'http://epminfwwadv21:9001'
+        description: Dev03 FRAPI server
+    -
+        url: 'http://localhost:9001'
+        description: local FRAPI server
+paths:
+    /frapi/quote:
+        post:
+            requestBody:
+                description: input for quot creation
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/quoteCreationObject'
+            tags:
+                - Quote APIs
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QuoteId'
+                    description: Successful request.
+                '400':
+                    description: Bad request - invalid quote
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Invalid request.
+            description: To Create a new Quote
+    /frapi/quote/search:
+        post:
+            requestBody:
+                description: input for quot search
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/QuoteSearchObject'
+            tags:
+                - Quote APIs
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/QuoteSearchResponseObject'
+                    description: Successful request.
+                '400':
+                    description: Bad request
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Invalid request.
+            description: Search Existing Quotes based on Customer Info
+    '/frapi/quote/{quote_id}':
+        get:
+            tags:
+                - Quote APIs
+            parameters:
+                -
+                    name: quote_id
+                    description: Quote ID
+                    schema:
+                        type: string
+                    in: path
+                    required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/cpqQuoteObject'
+                    description: Successful request.
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: Invalid request.
+            operationId: quoteGet
+            description: Returns Quote Object Based on requested Quote ID
+components:
+    schemas:
+        QuoteId:
+            required:
+                - id
+            properties:
+                id:
+                    type: string
+        QuoteItem:
+            type: object
+            properties:
+                id:
+                    type: string
+                    example: 841b8d04-2c18-44c4-aa18-a3ae0fc17579
+                name:
+                    type: string
+                    example: AT_S-10487_EvaluateRules_package
+                created:
+                    description: The date item was created
+                    type: string
+                    example: '2017-08-28T06:07:11.733Z'
+                quoteLastUpdated:
+                    description: The date item was created
+                    type: string
+                    example: '2017-08-29T06:07:11.733Z'
+                productId:
+                    type: string
+                    example: 7ffc1878-f1e5-47d8-8268-029615bb28d2
+                description:
+                    type: string
+                    example: Test package for Evaluate Rules
+                productCandidate:
+                    $ref: '#/components/schemas/ProductCandidate'
+                prePricedCandidate:
+                    $ref: '#/components/schemas/ProductCandidate'
+                portfolioItemId:
+                    description: The identifier of the portfolio item that this QuoteItem relates to.
+                    type: string
+                offerSpecification:
+                    description: the product specification for this offer
+                    type: object
+                currentPricing:
+                    $ref: '#/components/schemas/ICpqPricingResponse'
+                currentValidation:
+                    $ref: '#/components/schemas/ValidationResponse'
+                itemAction:
+                    description: >-
+                        The portfolio action which is to be applied to the Quote.If no value is specified then
+                        the CPQ API will treat it as an Add. The only values which are allowed are <Add |
+                        Update | Delete>
+                    type: string
+                    example: add
+        ValidationError:
+            properties:
+                entityID:
+                    type: string
+                entityUniqueCode:
+                    type: string
+                childID:
+                    type: string
+                errorCode:
+                    type: string
+                message:
+                    type: string
+                friendlyMessage:
+                    type: string
+                xsiType:
+                    type: string
+        ValidationResponse:
+            properties:
+                valid:
+                    type: boolean
+                errors:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ValidationError'
+        ProductCandidate:
+            title: Product Candidate
+            type: object
+            properties:
+                ID:
+                    description: >-
+                        The unique ID of the product candidate. Will be set during the database write
+                        operation if not provided
+                    type: string
+                    example: ID_d3iekpkfm8
+                EntityID:
+                    description: ID of the entity according to its specification
+                    type: string
+                    example: a156df72-a4eb-4be1-b969-570e8885f187
+                ChildEntity:
+                    description: An array of related entities
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IEntity'
+                CharacteristicUse:
+                    description: An array of characteristic uses. Can be configurable characteristic or fact instances
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ICharacteristicUse'
+                RateAttribute:
+                    description: An array of rating attributes
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IRatingAttribute'
+                ConfiguredValue:
+                    description: An array of configured value uses. These are user defined characteristic instances
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IConfiguredValueUse'
+                LinkedEntity:
+                    description: >-
+                        An optional array of strings that represent other entities that this product is linked
+                        to
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IEntityLink'
+                OrderItemID:
+                    description: An optional string for the order item ID
+                    type: string
+        IEntity:
+            properties:
+                ID:
+                    description: Unique ID for the entity instance
+                    type: string
+                    example: ID_qteykyruo9
+                EntityID:
+                    description: ID of the entity according to its specification
+                    type: string
+                    example: af80742c-3088-483b-857f-5f958d047b8f
+                ChildEntity:
+                    description: An array of related entities
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IEntity'
+                CharacteristicUse:
+                    description: ' An array of characteristic uses. Can be configurable characteristic or fact instances'
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ICharacteristicUse'
+                RateAttribute:
+                    description: ' An array of rating attributes'
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IRatingAttribute'
+                ConfiguredValue:
+                    description: ' An array of configured value uses. These are user defined characteristic instances'
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IConfiguredValueUse'
+        ICharacteristicUse:
+            properties:
+                UseArea:
+                    description: The name of the characteristic
+                    type: string
+                    example: Credit_Score
+                Value:
+                    description: An array of characteristic values
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ICharacteristicValue'
+                CharacteristicID:
+                    description: The characteristic id
+                    type: string
+                    example: 9c46867f-db54-4789-8a99-0b87e13fc62f
+        IRatingAttribute:
+            properties:
+                Name:
+                    description: Name of the rating attribute
+                    type: string
+                    example: Credit_Rating
+                Value:
+                    description: Value of the rating attribute
+                    type: string
+                    example: 97ff9db7-ac77-4c5d-b9bd-9f968bb27a5e
+        IConfiguredValueUse:
+            properties:
+                UseID:
+                    description: Unique ID for the configured value use
+                    type: string
+                    example: 6bec8c69-c4f4-4bf3-b38b-105a3d558b6f
+                UseArea:
+                    description: Name of the UseArea
+                    type: string
+                    example: Commercial_UserDefinedChar
+                Value:
+                    description: An array of configured values
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IConfiguredValue'
+                CharacteristicID:
+                    description: The characteristic id
+                    type: string
+                    example: db5e9276-0392-4f4d-99a6-d03da4b7df95
+        IConfiguredValue:
+            properties:
+                Value:
+                    description: The name of the configured value
+                    type: string
+                    example: 0123456789
+                ValueDetail:
+                    description: The entered detail for the configured value
+                    type: string
+                    example: Contact Phone
+        ICharacteristicValue:
+            properties:
+                ValueID:
+                    description: The unique ID of the characteristic
+                    type: string
+                    example: 97ff9db7-ac77-4c5d-b9bd-9f968bb27a5e
+                ValueDetail:
+                    description: Description of the selected value
+                    type: string
+                    example: Average
+        IEntityLink:
+            properties:
+                LinkTypeID:
+                    description: GUID of the EntityLink as defined on the Product Spec
+                    type: string
+                Action:
+                    description: >-
+                        The action to perform against this EntityLink. Only available on EntityLinks in Order
+                        Items
+                    type: string
+                ChangeType:
+                    type: string
+                Links:
+                    description: A list of all the portfolio items that this EntityLink targets
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ILinkTarget'
+                ItemSource:
+                    type: string
+        ILinkTarget:
+            type: object
+            properties:
+                PortfolioItemID:
+                    description: The id of the portfolio item that is linked
+                    type: string
+                Action:
+                    description: The action to be performed on this LinkTarget. Only available in Order Items
+                    type: string
+        ICpqPricingResponse:
+            type: object
+            properties:
+                Pricing:
+                    $ref: '#/components/schemas/ICpqItemPricing'
+        ICpqItemPricing:
+            type: object
+            properties:
+                CreationDate:
+                    description: Date of creation
+                    type: string
+                    example: '2017-12-12'
+                ProductCandidate:
+                    $ref: '#/components/schemas/IPricingServiceResponseEntity'
+                PriceSummary:
+                    $ref: '#/components/schemas/IItemPriceSummary'
+                TotalPriceSummary:
+                    $ref: '#/components/schemas/ITotalProfitSummary'
+                PaidTotalPriceSummary:
+                    $ref: '#/components/schemas/ITotalProfitSummary'
+                ItemisedPricingSummary:
+                    description: The itemised pricing summaries for unpaid instances
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IEntityProfitSummary'
+                PaidItemisedPricingSummary:
+                    description: The itemised pricing summaries for paid instances
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IEntityProfitSummary'
+        IRecurringCostSummary:
+            description: The summary for a recurring costs by period
+            type: object
+            properties:
+                Period:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IPeriodSummary'
+        IRecurringChargeSummary:
+            description: The summary for a recurring charges by period
+            type: object
+            properties:
+                Period:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IPeriodSummary'
+        IPeriodSummary:
+            description: The summary for a period
+            type: object
+            properties:
+                Name:
+                    description: Name of the period the summary relates to
+                    type: string
+                    example: Monthly
+                MinimumTotal:
+                    description: Minimum total for the given period
+                    type: string
+                    example: '150.00'
+                MaximumTotal:
+                    description: Maximum total for the given period
+                    type: string
+                    example: '150.00'
+        IItemPriceSummary:
+            type: object
+            properties:
+                IgnoredCharges:
+                    description: Summary information of ignored charges for the candidate
+                    type: array
+                    items:
+                        type: object
+                RecurringCharges:
+                    description: >-
+                        Summary information of the recurring charges for the candidate.This has to be any, as
+                        the pricing service could return an object or an array
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IRecurringChargeSummary'
+                NonRecurringCharges:
+                    $ref: '#/components/schemas/INonRecurringChargeSummary'
+                ActionBasedCharges:
+                    $ref: '#/components/schemas/INonRecurringActionBasedChargeSummary'
+                StandaloneCharges:
+                    $ref: '#/components/schemas/IStandaloneActionBasedChargeSummary'
+                IgnoredCosts:
+                    description: Summary information of ignored costs for the candidate
+                    type: array
+                    items:
+                        type: object
+                RecurringCosts:
+                    description: >-
+                        Summary information of the recurring costs for the candidate.This has to be any, as
+                        the pricing service could return an object or an array
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IRecurringCostSummary'
+                NonRecurringCosts:
+                    $ref: '#/components/schemas/INonRecurringCostSummary'
+        INonRecurringChargeSummary:
+            description: Summary information of the non-recurring charges for the candidate
+            type: object
+            properties:
+                MinimumTotal:
+                    description: The minimum possible total of non-recurring charges for the candidate
+                    type: number
+                    example: 0
+                FinalTotal:
+                    description: The final total of non-recurring charges for the candidate
+                    type: number
+                    example: 0
+        INonRecurringCostSummary:
+            description: Summary information of the non-recurring charges for the candidate
+            type: object
+            properties:
+                MinimumTotal:
+                    description: The minimum possible total of non-recurring charges for the candidate
+                    type: number
+                    example: 0
+                FinalTotal:
+                    description: The final total of non-recurring charges for the candidate
+                    type: number
+                    example: 0
+        INonRecurringActionBasedChargeSummary:
+            description: Summary information of the non-recurring charges for the candidate
+            type: object
+            properties:
+                Charges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IActionBasedChargeItem'
+                MinimumTotal:
+                    description: The minimum possible total of non-recurring charges for the candidate
+                    type: number
+                    example: 0
+                FinalTotal:
+                    description: The final total of non-recurring charges for the candidate
+                    type: number
+                    example: 0
+        IStandaloneActionBasedChargeSummary:
+            description: Summary information of the non-recurring charges for the candidate
+            type: object
+            properties:
+                Charge:
+                    $ref: '#/components/schemas/IActionBasedStandaloneChargeItem'
+                MinimumTotal:
+                    description: The minimum possible total of non-recurring charges for the candidate
+                    type: number
+                    example: 0
+                FinalTotal:
+                    description: The final total of non-recurring charges for the candidate
+                    type: number
+                    example: 0
+        IActionBasedStandaloneChargeItem:
+            description: Summary information of the non-recurring charges for the candidate
+            type: object
+            properties:
+                Rate:
+                    $ref: '#/components/schemas/IEntityRate'
+                ChargeType:
+                    description: The type of charge for the action based standalone charge item
+                    type: string
+                    example: RecurringCharge
+                ExactType:
+                    description: The exact type of the action based standalone charge item
+                    type: string
+                    example: Recurring_Charge_Template
+                ChargeName:
+                    description: The name of the action based standalone charge item
+                    type: string
+                    example: Example Charge Name
+        IActionBasedChargeItem:
+            type: object
+            properties:
+                ChildEntity:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IPricingServiceResponseEntity'
+                Rate:
+                    $ref: '#/components/schemas/IEntityRate'
+                ChargeType:
+                    description: The type of charge for the action based charge item
+                    type: string
+                    example: RecurringCharge
+                ExactType:
+                    description: The exact type of the action based charge item
+                    type: string
+                    example: Recurring_Charge_Template
+                PriceGrouping:
+                    description: The price grouping of the action based charge item
+                    type: string
+                    example: Update fees
+                ChargeName:
+                    description: The name of the action based charge item
+                    type: string
+                    example: Example Charge Name
+        IPricingServiceResponseEntity:
+            description: Details of the priced product candidate
+            type: object
+            properties:
+                ChildEntity:
+                    description: Any child items the priced entity may contain
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IPricingServiceResponseEntity'
+                ChargeType:
+                    description: The type of charge for the priced entity
+                    type: string
+                    example: RecurringCharge
+                ExactType:
+                    description: The exact type of the priced entity
+                    type: string
+                    example: Recurring_Charge_Template
+                Rate:
+                    $ref: '#/components/schemas/IEntityRate'
+                Periodicity:
+                    description: The periodicity applied to the priced entity
+                    type: string
+                    example: Monthly
+                HasBeenPaid:
+                    description: Flag to indicate whether or not the priced entity has been paid
+                    type: boolean
+                    example: 'false'
+                CostType:
+                    description: The type of the cost for the priced entity
+                    type: string
+                    example: RecurringCost
+        IEntityRate:
+            type: object
+            properties:
+                ID:
+                    description: The unique identifier for the entity rate
+                    type: string
+                    example: 3357236a-e180-4462-b675-5f3a30496e9e
+                Type:
+                    description: The type for the entity rate
+                    type: string
+                    example: Recurring_Charge_Flat
+                StartDate:
+                    description: The start date applied to the entity rate
+                    type: string
+                    example: '2017-12-12'
+                EndDate:
+                    description: The end date applied to the entity rate
+                    type: string
+                    example: '2017-12-31'
+                Value:
+                    description: The charge value of the entity rate
+                    type: string
+                    example: '15'
+                CostValue:
+                    description: The cost value of the entity rate
+                    type: string
+                    example: '5'
+        IQuotePricingSummary:
+            type: object
+            properties:
+                TotalPriceSummary:
+                    $ref: '#/components/schemas/ITotalProfitSummary'
+                PaidTotalPriceSummary:
+                    $ref: '#/components/schemas/ITotalProfitSummary'
+        IPeriodProfitSummary:
+            properties:
+                Monthly:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IProfitSummary'
+                Annualy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IProfitSummary'
+                Weekly:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IProfitSummary'
+        IProfitSummary:
+            type: object
+            properties:
+                ItemCharge:
+                    description: The value of the charge for the item on the summary.
+                    type: string
+                    example: '50.00'
+                ItemCost:
+                    description: The value of the cost for the item on the summary.
+                    type: string
+                    example: '25.00'
+                Profit:
+                    description: >-
+                        The value of the profit for the item on the summary - Profit is calculated using the
+                        cost and charge.
+                    type: string
+                    example: '25.00'
+                ProfitMargin:
+                    description: >-
+                        The value of the profit margin for the item on the summary - Profit margin is
+                        calculated as a percentage.
+                    type: string
+                    example: '50.00'
+        ITotalProfitSummary:
+            type: object
+            properties:
+                Recurring:
+                    $ref: '#/components/schemas/IPeriodProfitSummary'
+                NonRecurring:
+                    $ref: '#/components/schemas/IProfitSummary'
+        IEntityProfitSummary:
+            type: object
+            properties:
+                EntityID:
+                    description: Unique identifier for the entity in relation to the specification
+                    type: string
+                    example: ce11ecd5-de2f-4c53-ac62-f605af5dc10b
+                InstanceIDs:
+                    description: A list of unique identifiers for each instance that exists in the candidate.
+                    type: array
+                    items:
+                        type: string
+                    example: '[''ID_n6sts7rv2c'']'
+                Recurring:
+                    description: The total summary for each recurring period.
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IPeriodProfitSummary'
+                NonRecurring:
+                    description: The total non recurring summary.
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/IProfitSummary'
+                Quantity:
+                    description: Amount of instances of the given entity
+                    type: number
+                    example: '3'
+        Error:
+            required:
+                - message
+            properties:
+                message:
+                    type: string
+        quoteCreationObject:
+            required:
+                - addressID
+            type: object
+            properties:
+                addressID:
+                    $ref: '#/components/schemas/AddressIdObject'
+                    description: >-
+                        Must be passed as accountUuid may not always have the correct service address due to
+                        move scenarios
+                    example: '1234'
+                customerType:
+                    type: string
+                    example: Gold
+                assistType:
+                    type: string
+                    example: N/A
+                salesChannel:
+                    type: string
+                    example: RadioShack
+                partner:
+                    type: string
+                    example: Retailer
+                affiliate:
+                    type: string
+                    example: N/A
+                agentID:
+                    type: string
+                    example: Agent Smith
+                sCase:
+                    type: string
+                    example: S-1234
+                accountUuid:
+                    description: The UUID assigned to the account in C360
+                    type: string
+                salesChannelIdentity:
+                    type: string
+                    example: Digital1234
+        AddressIdObject:
+            title: Root Type for AddressIdObject
+            description: ''
+            type: object
+            properties:
+                environmentCode:
+                    description: |-
+                        DPI Environment Code
+
+                        If passed, samControlNumber must also be passed.
+                        If passed, do not pass frontierAddressId
+                    enum:
+                        - AZ
+                        - CA
+                        - CT
+                        - CW
+                        - CZ
+                        - EA
+                        - FT
+                        - LF
+                        - LR
+                        - MS
+                        - NW
+                        - PA
+                        - US
+                    type: string
+                samControlNumber:
+                    format: int32
+                    description: |-
+                        Service Address Master (SAM) Control Number
+
+                        If passed, environmentCode must also be passed.
+                        If passed, do not pass frontierAddr
+                    type: integer
+                frontierAddressId:
+                    description: |-
+                        Frontier Address Master Address Id
+
+                        If passed do not pass environmentCode or samControlNumber
+                    type: string
+            example:
+                environmentCode: AZ
+                samControlNumber: 1234567
+                frontierAddressId: 1234567890
+        QuoteSearchObject:
+            required:
+                - startDate
+                - endDate
+            type: object
+            properties:
+                customerName:
+                    description: >-
+                        Is the name being stored in a single field, or as a first name, last name, company
+                        name???  If so do we need to have this broken into an object with those fields?
+                    type: string
+                    example: John Doe
+                TN:
+                    type: string
+                    example: '1233445555'
+                salesChannelIdentity:
+                    type: string
+                    example: '1233445555'
+                accountUuid:
+                    type: string
+                    example: '1233445555'
+                addressId:
+                    $ref: '#/components/schemas/AddressIdObject'
+                    example: '1 main st Dallas, Texas'
+                partner:
+                    description: ''
+                    type: string
+                affiliate:
+                    description: ''
+                    type: string
+                agent:
+                    description: ''
+                startDate:
+                    format: date
+                    description: |-
+                        Date to start searching for quotes
+
+                        Does this search create date or due date???
+                    type: string
+                endDate:
+                    format: date
+                    description: |-
+                        Date to end searching for quotes
+
+                        Does this search create date or due date???
+                    type: string
+        ServiceAddressObject:
+            title: Root Type for serviceAddressObject
+            description: ''
+            type: object
+            properties:
+                addressId:
+                    $ref: '#/components/schemas/AddressIdObject'
+                number:
+                    type: string
+                preDirectional:
+                    type: string
+                streetName:
+                    type: string
+                postDirectional:
+                    type: string
+                city:
+                    type: string
+                state:
+                    type: string
+                postalCode:
+                    type: string
+                streetNameSuffix:
+                    type: string
+            example:
+                addressId:
+                    environmentCode: LF
+                    samControlNumber: 61
+                    frontierAddressId: some text
+                number: some text
+                preDirectional: some text
+                streetName: some text
+                postDirectional: some text
+                city: some text
+                state: some text
+                postalCode: some text
+                streetNameSuffix: some text
+        QuoteSearchResponseObject:
+            title: Root Type for QuoteSearchResponseObject
+            description: ''
+            type: object
+            properties:
+                quoteId:
+                    $ref: '#/components/schemas/QuoteId'
+                agent:
+                    type: string
+                partner:
+                    type: string
+                Affiliate:
+                    type: string
+                Channel:
+                    type: string
+                scheduledAppointment:
+                    type: object
+                    properties:
+                        scheduleDate:
+                            format: date
+                            type: string
+                        startTime:
+                            type: string
+                        endTime:
+                            type: string
+                dueDate:
+                    format: date
+                    type: string
+                createDate:
+                    format: date
+                    type: string
+                customer:
+                    type: object
+                    properties:
+                        accountUuid:
+                            type: string
+                        firstName:
+                            type: string
+                        lastName:
+                            type: string
+                        companyName:
+                            type: string
+                status:
+                    type: string
+                productsModifiable:
+                    type: boolean
+                scheduleModifiable:
+                    type: boolean
+                cancelAllowed:
+                    type: boolean
+                quoteNumber:
+                    description: '    '
+                    type: string
+                salesChannelIdentity:
+                    description: ''
+                    type: string
+                salesJourney:
+                    description: The current and next steps of the Sales Journey
+                    type: string
+                error:
+                    $ref: '#/components/schemas/Error'
+                address:
+                    $ref: '#/components/schemas/ServiceAddressObject'
+                monthlyRecurringPrice:
+                    format: double
+                    type: number
+                nonRecurringPrice:
+                    description: ''
+                    type: string
+                videoService:
+                    description: ''
+                    type: boolean
+                dataService:
+                    description: ''
+                    type: boolean
+                voiceService:
+                    description: ''
+                    type: boolean
+                securityService:
+                    description: ''
+                    type: boolean
+            example:
+                quoteId:
+                    id: some text
+                agent: some text
+                partner: some text
+                Affiliate: some text
+                Channel: some text
+                scheduledAppointment:
+                    scheduleDate: '2018-01-17'
+                    startTime: some text
+                    endTime: some text
+                dueDate: '2018-01-17'
+                createDate: '2018-01-17'
+                customer:
+                    accountUuid: some text
+                    firstName: some text
+                    lastName: some text
+                    companyName: some text
+                status: some text
+                productsModifiable: true
+                scheduleModifiable: true
+                cancelAllowed: true
+                quoteNumber: some text
+                salesChannelIdentity: some text
+                salesJourney: some text
+                error:
+                    message: some text
+                address:
+                    addressId:
+                        environmentCode: LR
+                        samControlNumber: 82
+                        frontierAddressId: some text
+                    number: some text
+                    preDirectional: some text
+                    streetName: some text
+                    postDirectional: some text
+                    city: some text
+                    state: some text
+                    postalCode: some text
+                    streetNameSuffix: some text
+                monthlyRecurringPrice: 43.37
+                nonRecurringPrice: some text
+                videoService: true
+                dataService: true
+                voiceService: true
+                securityService: true
+        cpqQuoteObject:
+            type: object
+            properties:
+                quoteId:
+                    $ref: '#/components/schemas/QuoteId'
+                agent:
+                    type: string
+                partner:
+                    type: string
+                Affiliate:
+                    type: string
+                Channel:
+                    type: string
+                scheduledAppointment:
+                    type: object
+                    properties:
+                        scheduleDate:
+                            format: date
+                            type: string
+                        startTime:
+                            type: string
+                        endTime:
+                            type: string
+                dueDate:
+                    format: date
+                    type: string
+                monthlyRecurringPrice:
+                    format: double
+                    type: number
+                nonRecurringPrice:
+                    description: ''
+                    type: string
+                videoService:
+                    description: ''
+                    type: boolean
+                dataService:
+                    description: ''
+                    type: boolean
+                voiceService:
+                    description: ''
+                    type: boolean
+                securityService:
+                    description: ''
+                    type: boolean
+                customer:
+                    type: object
+                    properties:
+                        accountUuid:
+                            type: string
+                        firstName:
+                            type: string
+                        lastName:
+                            type: string
+                        companyName:
+                            type: string
+                status:
+                    type: string
+                productsModifiable:
+                    type: boolean
+                scheduleModifiable:
+                    type: boolean
+                cancelAllowed:
+                    type: boolean
+                quoteNumber:
+                    description: '    '
+                    type: string
+                salesChannelIdentity:
+                    description: ''
+                    type: string
+                salesJourney:
+                    description: The current and next steps of the Sales Journey
+                    type: string
+                error:
+                    $ref: '#/components/schemas/Error'
+                created:
+                    description: The date created
+                    type: string
+                    example: '2017-08-28T06:15:11.733Z'
+                updated:
+                    description: The date last updated
+                    type: string
+                    example: '2017-08-28T06:19:11.733Z'
+                contextData:
+                    type: object
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/QuoteItem'
+                quoteType:
+                    description: 'Type of the quote {sales, opportunity...}'
+                    type: number
+                    example: 0
+                orderId:
+                    description: The orderId the quote was created from (for quotes of type 'change')
+                    type: string
+                    example: ' '
+                cpqOrderId:
+                    description: The Internal ID of the Generic Order generated for this quote on submission
+                    type: string
+                    example: ' '
+                cpqSupplementalOrderId:
+                    description: The Internal ID of the Supplemental Order generated for this quote on submission
+                    type: string
+                    example: ' '
+                currentValidation:
+                    $ref: '#/components/schemas/ValidationResponse'
+                submissionDate:
+                    type: string
+                    example: '2017-08-28T06:23:11.733Z'
+                address:
+                    $ref: '#/components/schemas/ServiceAddressObject'

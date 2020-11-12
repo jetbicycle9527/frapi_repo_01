@@ -1,0 +1,14 @@
+{
+  "redis" : {
+    "host": "epminfwwadv21.corp.pvt",
+    "port": 6380
+  },
+  "frapi" : {
+    "host": "epminfwwadv21.corp.pvt",
+    "port": 8180
+  },
+  "cpq": {
+    "host": "epminfwwadv21.corp.pvt",
+    "port": 8001  
+  }
+}
